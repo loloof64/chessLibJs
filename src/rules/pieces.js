@@ -1,7 +1,9 @@
+import {InstantiationError, UnknownPieceFENError} from '../errors/errors';
+
 export class Piece {
     constructor(whiteTurn){
         if (new.target === Piece){
-            throw TypeError('Cannot instantiate Piece directly.')
+            throw new InstantiationError('Piece');
         }
         this.whiteTurn = whiteTurn;
     }
@@ -11,6 +13,24 @@ export class Piece {
      */
     toFEN(){
         return "";
+    }
+
+    static fromFEN(pieceFEN){
+        switch(pieceFEN){
+            case 'P': return new Pawn(true);
+            case 'p': return new Pawn(false);
+            case 'N': return new Knight(true);
+            case 'n': return new Knight(false);
+            case 'B': return new Bishop(true);
+            case 'b': return new Bishop(false);
+            case 'R': return new Rook(true);
+            case 'r': return new Rook(false);
+            case 'Q': return new Queen(true);
+            case 'q': return new Queen(false);
+            case 'K': return new King(true);
+            case 'k': return new King(false);
+            default: throw new UnknownPieceFENError(`${pieceFEN}`); a
+        }
     }
 };
 
