@@ -16,9 +16,9 @@ export class Board {
         const boardLines = boardFEN.split('/');
         const values = [];
 
-        for (let line in boardLines){
+        for (let lineIndex in boardLines){
             const lineCells = [];
-            const line = boardLines[line];
+            const line = boardLines[lineIndex];
 
             for (let cellValue of line){
                 const holesNumber = parseInt(cellValue);
@@ -37,6 +37,32 @@ export class Board {
         const boardToReturn = new Board();
         boardToReturn.values = values;
         return boardToReturn;
+    }
+
+    /**
+     * see https://goo.gl/nWOyYO
+     */
+    toFEN(){
+        let stringToReturn = "";
+
+        for (let rank = 7; rank >= 0 ; rank--){
+            let holesNumber = 0;
+            for (let file = 0; file < 8; file++){
+                const cell = this.values[rank][file];
+                if (cell == null){
+                    holesNumber++;
+                }
+                else {
+                    if (holesNumber > 0) stringToReturn += `${holesNumber}`;
+                    holesNumber = 0;
+                    stringToReturn += cell.toFEN();
+                }
+            }
+            if (holesNumber > 0) stringToReturn += `${holesNumber}`;
+            if (rank > 0) stringToReturn += '/';
+        }
+
+        return stringToReturn;
     }
 
 }

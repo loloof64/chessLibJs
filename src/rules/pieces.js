@@ -29,7 +29,7 @@ export class Piece {
             case 'q': return new Queen(false);
             case 'K': return new King(true);
             case 'k': return new King(false);
-            default: throw new UnknownPieceFENError(`${pieceFEN}`); a
+            default: throw new UnknownPieceFENError(`${pieceFEN}`);
         }
     }
 };
