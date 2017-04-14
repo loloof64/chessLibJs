@@ -16,7 +16,7 @@ export class Board {
         const boardLines = boardFEN.split('/').reverse();
         const values = [];
 
-        for (let lineIndex in boardLines){
+        for (let lineIndex = 0; lineIndex < boardLines.length; lineIndex++){
             const lineCells = [];
             const line = boardLines[lineIndex];
 
