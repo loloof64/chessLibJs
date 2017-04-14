@@ -2,9 +2,9 @@
   "name": "chess-lib-js",
   "version": "0.0.1",
   "description": "A chess library in Javascript",
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
-    "compile": "./node_modules/.bin/babel --presets es2015 -d lib/ src/",
+    "compile": "./node_modules/.bin/babel --presets es2015 -d lib/ src/ && mv lib/index.js . && uglifyjs -c -m -o index.min.js -- index.js",
     "test": "npm run compile && ./node_modules/.bin/babel --presets es2015 -d test/ testSrc/ && mocha --recursive",
     "prepublish": "npm run test"
   },
@@ -33,5 +33,9 @@
     "chai": "^3.5.0",
     "mocha": "^3.2.0"
   },
-  "dependencies": {}
+  "files": [
+    "index.js",
+    "index.min.js",
+    "lib"
+  ]
 }
