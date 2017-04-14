@@ -2,10 +2,11 @@ import {InstantiationError, UnknownPieceFENError} from '../errors/errors';
 
 export class Piece {
     constructor(whiteTurn){
-        if (new.target === Piece){
-            throw new InstantiationError('Piece');
-        }
-        this.whiteTurn = whiteTurn;
+        const isASubChild = this instanceof Pawn || this instanceof Knight || this instanceof Bishop
+            || this instanceof Rook || this instanceof Queen || this instanceof King;
+
+        if (isASubChild) this.whiteTurn = whiteTurn;
+        else throw new InstantiationError('Piece');
     }
 
     /**

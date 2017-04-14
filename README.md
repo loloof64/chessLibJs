@@ -1,8 +1,8 @@
 # chessLibJs
 A chess library in Javascript
 
-Developpers
-===========
+If you want to extend this library
+==================================
 
 First install NodeJS if not done yet and run `npm install` in order to install dependencies. Then:
 
