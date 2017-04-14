@@ -1,5 +1,6 @@
 import {expect, assert} from 'chai';
-import {Board} from '../../lib/rules/position';
+import _ from 'lodash';
+import {Board, GameInfo, CastleRights} from '../../lib/rules/position';
 import {Piece} from '../../lib/rules/pieces';
 
 /**
@@ -42,7 +43,7 @@ describe('Board', function(){
          );
     });
 
-    it("generates FEN string correctly", function(){
+    it("generates FEN board part correctly", function(){
         const board1 = new Board();
         board1.values = boardValuesFromBruteString('RNBQKBNR/PPPPPPPP/________/________/________/________/pppppppp/rnbqkbnr');
         assert.equal(board1.toFEN(), 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR');
@@ -54,5 +55,65 @@ describe('Board', function(){
         const board3 = new Board();
         board3.values = boardValuesFromBruteString('_____RK_/_____P_P/_____kPq/________/__n_____/____N_p_/_____p_p/_____r__');
         assert.equal(board3.toFEN(), '5r2/5p1p/4N1p1/2n5/8/5kPq/5P1P/5RK1');
+    });
+});
+
+describe('CastleRights', function(){
+    it('is generated correctly from FEN', function(){
+        const rights1 = CastleRights.fromFEN('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+        assert.isTrue(_.isEqual(rights1, new CastleRights(true, true, true, true)));
+
+        const rights2 = CastleRights.fromFEN('8/8/8/3k4/8/8/3K4/8 w - - 0 30');
+        assert.isTrue(_.isEqual(rights2, new CastleRights(false, false, false, false)));
+
+        const rights3 = CastleRights.fromFEN('r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/P1N2N2/1PPP1PPP/R1BQK2R w KQ - 0 10');
+        assert.isTrue(_.isEqual(rights3, new CastleRights(true, true, false, false)));
+
+        const rights4 = CastleRights.fromFEN('rnbqkbnr/ppp2ppp/3p4/4p3/7R/P4N2/1PPPPPP1/RNBQKB2 b Qkq - 0 8');
+        assert.isTrue(_.isEqual(rights4, new CastleRights(false, true, true, true)));
+    });
+
+    it('generate FEN castle part correctly', function(){
+        const rights1 = new CastleRights(true, true, true, true);
+        assert.equal('KQkq', rights1.toFEN());
+
+        const rights2 = new CastleRights(false, false, false, false);
+        assert.equal('-', rights2.toFEN());
+
+        const rights3 = new CastleRights(true, true, false, false);
+        assert.equal('KQ', rights3.toFEN());
+
+        const rights4 = new CastleRights(false, true, true, true);
+        assert.equal('Qkq', rights4.toFEN());
+    });
+});
+
+describe('GameInfo', function(){
+    it('is generated correctly from FEN', function(){
+        const info1 = GameInfo.fromFEN('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+        assert.isTrue(_.isEqual(info1, new GameInfo(true, new CastleRights(true, true, true, true), null, 0, 1)));
+
+        const info2 = GameInfo.fromFEN('k2rr3/2pn2pp/p4p2/8/8/6P1/2P2P1P/RR4K1 b - - 13 20');
+        assert.isTrue(_.isEqual(info2, new GameInfo(false, new CastleRights(false, false, false, false), null, 13, 20)));
+
+        const info3 = GameInfo.fromFEN('r1bqkbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3');
+        assert.isTrue(_.isEqual(info3, new GameInfo(true, new CastleRights(true, true, true, true), Board.FILE_D, 0, 3)));
+
+        const info4 = GameInfo.fromFEN('rnbqkbnr/ppp1pppp/8/8/3pP3/5N1P/PPPP1PP1/RNBQKB1R b KQkq e3 0 3');
+        assert.isTrue(_.isEqual(info4, new GameInfo(false, new CastleRights(true, true, true, true), Board.FILE_E, 0, 3)));
+    });
+
+    it('generate FEN info part correctly', function(){
+        const info1 = new GameInfo(true, new CastleRights(true, true, true, true), null, 0, 1);
+        assert.equal('w KQkq - 0 1', info1.toFEN());
+
+        const info2 = new GameInfo(false, new CastleRights(false, false, false, false), null, 13, 20);
+        assert.equal('b - - 13 20', info2.toFEN());
+
+        const info3 = new GameInfo(true, new CastleRights(true, true, true, true), Board.FILE_D, 0, 3);
+        assert.equal('w KQkq d6 0 3', info3.toFEN());
+
+        const info4 = new GameInfo(false, new CastleRights(true, true, true, true), Board.FILE_E, 0, 3);
+        assert.equal('b KQkq e3 0 3', info4.toFEN());
     });
 });
