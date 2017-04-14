@@ -1,16 +1,16 @@
 import {expect, assert} from 'chai';
 import _ from 'lodash';
-import {Board, GameInfo, CastleRights} from '../../lib/rules/position';
+import {Board, GameInfo, CastleRights, Position} from '../../lib/rules/position';
 import {Piece} from '../../lib/rules/pieces';
 
 /**
  * Brute string representation of a board, as opposed to FEN string : each empty cell is represented,
- * empty cells are not grouped.
+ * empty cells are not grouped. Furthermore, first rank is coded first : the order is preserved, as opposite to FEN.
  * @param {Array[Array[Piece]]} board
  * @return String
  */
 function boardArrayToBruteString(board){
-    return board.values.map((line) => line.map((cell) => cell ? cell.toFEN() : '_').join('')).reverse().join('/');
+    return board.values.map((line) => line.map((cell) => cell ? cell.toFEN() : '_').join('')).join('/');
 }
 
 function boardValuesFromBruteString(valuesStr){
@@ -115,5 +115,59 @@ describe('GameInfo', function(){
 
         const info4 = new GameInfo(false, new CastleRights(true, true, true, true), Board.FILE_E, 0, 3);
         assert.equal('b KQkq e3 0 3', info4.toFEN());
+    });
+});
+
+describe('Position', function(){
+    it('is generated correctly from FEN', function (){
+        const pos1 = Position.fromFEN('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
+        const board1 = new Board();
+        board1.values = boardValuesFromBruteString('RNBQKBNR/PPPPPPPP/________/________/________/________/pppppppp/rnbqkbnr');
+        const gameInfo1 = new GameInfo(true, new CastleRights(true, true, true, true), null, 0, 1);
+        assert.isTrue(_.isEqual(pos1, new Position(board1, gameInfo1)));
+
+        const pos2 = Position.fromFEN('k2rr3/2pn2pp/p4p2/8/8/6P1/2P2P1P/RR4K1 b - - 13 20');
+        const board2 = new Board();
+        board2.values = boardValuesFromBruteString('RR____K_/__P__P_P/______P_/________/________/p____p__/__pn__pp/k__rr___');
+        const gameInfo2 = new GameInfo(false, new CastleRights(false, false, false, false), null, 13, 20);
+        assert.isTrue(_.isEqual(pos2, new Position(board2, gameInfo2)));
+
+        const pos3 = Position.fromFEN('r1bqkbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3');
+        const board3 = new Board();
+        board3.values = boardValuesFromBruteString('RNBQKBNR/PPPP_PPP/________/________/___pP___/__n_____/ppp_pppp/r_bqkbnr');
+        const gameInfo3 = new GameInfo(true, new CastleRights(true, true, true, true), Board.FILE_D, 0, 3);
+        assert.isTrue(_.isEqual(pos3, new Position(board3, gameInfo3)));
+
+        const pos4 = Position.fromFEN('rnbqkbnr/ppp1pppp/8/8/3pP3/5N1P/PPPP1PP1/RNBQKB1R b KQkq e3 0 3');
+        const board4 = new Board();
+        board4.values = boardValuesFromBruteString('RNBQKB_R/PPPP_PP_/_____N_P/___pP___/________/________/ppp_pppp/rnbqkbnr');
+        const gameInfo4 = new GameInfo(false, new CastleRights(true, true, true, true), Board.FILE_E, 0, 3);
+        assert.isTrue(_.isEqual(pos4, new Position(board4, gameInfo4)));
+    });
+
+    it('generate FEN correctly', function(){
+        const board1 =  new Board();
+        board1.values = boardValuesFromBruteString('RNBQKBNR/PPPPPPPP/________/________/________/________/pppppppp/rnbqkbnr');
+        const gameInfo1 = new GameInfo(true, new CastleRights(true, true, true, true), null, 0, 1);
+        const position1 = new Position(board1, gameInfo1);
+        assert.equal('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', position1.toFEN());
+
+        const board2 = new Board();
+        board2.values = boardValuesFromBruteString('RR____K_/__P__P_P/______P_/________/________/p____p__/__pn__pp/k__rr___');
+        const gameInfo2 = new GameInfo(false, new CastleRights(false, false, false, false), null, 13, 20);
+        const position2 = new Position(board2, gameInfo2);
+        assert.equal('k2rr3/2pn2pp/p4p2/8/8/6P1/2P2P1P/RR4K1 b - - 13 20', position2.toFEN());
+
+        const board3 = new Board();
+        board3.values = boardValuesFromBruteString('RNBQKBNR/PPPP_PPP/________/________/___pP___/__n_____/ppp_pppp/r_bqkbnr');
+        const gameInfo3 = new GameInfo(true, new CastleRights(true, true, true, true), Board.FILE_D, 0, 3);
+        const position3 = new Position(board3, gameInfo3);
+        assert.equal('r1bqkbnr/ppp1pppp/2n5/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3', position3.toFEN());
+
+        const board4 = new Board();
+        board4.values = boardValuesFromBruteString('RNBQKB_R/PPPP_PP_/_____N_P/___pP___/________/________/ppp_pppp/rnbqkbnr');
+        const gameInfo4 = new GameInfo(false, new CastleRights(true, true, true, true), Board.FILE_E, 0, 3);
+        const position4 = new Position(board4, gameInfo4);
+        assert.equal('rnbqkbnr/ppp1pppp/8/8/3pP3/5N1P/PPPP1PP1/RNBQKB1R b KQkq e3 0 3', position4.toFEN());
     });
 });

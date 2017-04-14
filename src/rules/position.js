@@ -13,7 +13,7 @@ export class Board {
      */
     static fromFEN(fen){
         const boardFEN = fen.split(/\s+/)[0];
-        const boardLines = boardFEN.split('/');
+        const boardLines = boardFEN.split('/').reverse();
         const values = [];
 
         for (let lineIndex in boardLines){
@@ -84,7 +84,7 @@ export class Board {
     static get RANK_8(){ return 7; }
 
 
-}
+};
 
 /**
  * Stores castle availabilities for both players
@@ -131,7 +131,7 @@ export class CastleRights {
         return stringToReturn ? stringToReturn : '-';
     }
 
-}
+};
 
 /**
  * Game info part of a position : all but board value (pieces locations).
@@ -193,4 +193,32 @@ export class GameInfo {
 
         return `${whiteTurnStr} ${castleRightsStr} ${enPassantFileStr} ${nullityHalfMovesCountStr} ${moveNumberStr}`;
     }
-}
+};
+
+export class Position {
+    constructor(board, gameInfo){
+        this.board = board;
+        this.gameInfo = gameInfo;
+    }
+
+    static get INITIAL_POSITION_FEN() {
+        return 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    }
+
+    /**
+     * Builds from a FEN string.
+     * See https://goo.gl/nWOyYO
+     * @param {String} fen
+     */
+    static fromFEN(fen){
+        return new Position(Board.fromFEN(fen), GameInfo.fromFEN(fen));
+    }
+
+    /**
+     * Generates the FEN string.
+     * See https://goo.gl/nWOyYO
+     */
+    toFEN(){
+        return `${this.board.toFEN()} ${this.gameInfo.toFEN()}`;
+    }
+};
