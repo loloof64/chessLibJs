@@ -16,11 +16,12 @@ export class Board {
         const boardLines = boardFEN.split('/').reverse();
         const values = [];
 
-        for (let lineIndex = 0; lineIndex < boardLines.length; lineIndex++){
+        for (let lineIndex in boardLines){
             const lineCells = [];
-            const line = boardLines[lineIndex];
+            const lineValues = boardLines[lineIndex].split('');
 
-            for (let cellValue of line){
+            for (let cellIndex in lineValues){
+                const cellValue = lineValues[cellIndex];
                 const holesNumber = parseInt(cellValue);
                 const isNumber = !isNaN(holesNumber);
                 if (isNumber){
