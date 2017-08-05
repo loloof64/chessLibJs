@@ -1,6 +1,8 @@
 # chessLibJs
 A chess library in Javascript
 
+Use examples are in [the project wiki](https://goo.gl/44RBT5).
+
 If you want to extend this library
 ==================================
 
