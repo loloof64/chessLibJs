@@ -1,6 +1,6 @@
 import { expect, assert } from 'chai';
 import _ from 'lodash';
-import { Board, GameInfo, CastleRights, Position } from '../../lib/rules/position';
+import { Board, GameInfo, CastleRights, Position, PositionBuilder } from '../../lib/rules/position';
 import { Piece } from '../../lib/rules/pieces';
 
 /**
@@ -170,4 +170,54 @@ describe('Position', function () {
         const position4 = new Position(board4, gameInfo4);
         assert.equal('rnbqkbnr/ppp1pppp/8/8/3pP3/5N1P/PPPP1PP1/RNBQKB1R b KQkq e3 0 3', position4.toFEN());
     });
+
+    it('generates correct FEN when building piece by piece', function () {
+        const pos1 = Position.
+            newBuilder().
+            setNullityHalfMovesCount(20).
+            setMoveNumber(15).
+            setPiece('K', Board.FILE_E, Board.RANK_1).
+            setPiece('k', Board.FILE_E, Board.RANK_8).
+            setPiece('B', Board.FILE_C, Board.RANK_4).
+            build();
+
+        assert.equal('4k3/8/8/8/2B5/8/8/4K3 w - - 20 15', pos1.toFEN());
+
+        const pos2 = Position.
+            newBuilder().
+            setWhiteTurn(false).
+            setPiece('K', Board.FILE_E, Board.RANK_1).
+            setPiece('k', Board.FILE_E, Board.RANK_8).
+            setPiece('B', Board.FILE_C, Board.RANK_4).
+            build();
+
+        assert.equal('4k3/8/8/8/2B5/8/8/4K3 b - - 0 1', pos2.toFEN());
+
+        const pos3 = Position.
+            newBuilder().
+            setCastle('K', true).
+            setCastle('k', true).
+            setCastle('q', true).
+            setPiece('K', Board.FILE_E, Board.RANK_1).
+            setPiece('k', Board.FILE_E, Board.RANK_8).
+            setPiece('r', Board.FILE_A, Board.RANK_8).
+            setPiece('r', Board.FILE_H, Board.RANK_8).
+            setPiece('R', Board.FILE_H, Board.RANK_1).
+            setPiece(null, Board.FILE_A, Board.RANK_1).
+            build();
+
+        assert.equal('r3k2r/8/8/8/8/8/8/4K2R w Kkq - 0 1', pos3.toFEN());
+
+        const pos4 = Position.
+            newBuilder().
+            setEnPassantFile(Board.FILE_D).
+            setPiece('K', Board.FILE_E, Board.RANK_1).
+            setPiece('k', Board.FILE_E, Board.RANK_8).
+            setPiece('p', Board.FILE_D, Board.RANK_5).
+            build();
+
+        assert.equal('4k3/8/8/3p4/8/8/8/4K3 w - d6 0 1', pos4.toFEN());
+    });
+
+    // TODO checks that building position piece by piece fail if resulting fen is illegal.
 });

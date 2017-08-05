@@ -45,12 +45,16 @@ export class Board {
      * see https://goo.gl/nWOyYO
      */
     toFEN() {
+        return Board.toFEN(this.values);
+    }
+
+    static toFEN(values) {
         let stringToReturn = "";
 
         for (let rank = 7; rank >= 0; rank--) {
             let holesNumber = 0;
             for (let file = 0; file < 8; file++) {
-                const cell = this.values[rank][file];
+                const cell = values[rank][file];
                 if (cell == null) {
                     holesNumber++;
                 }
@@ -206,6 +210,81 @@ export class IllegalPositionError {
 IllegalPositionError.prototype = Object.create(Error.prototype);
 IllegalPositionError.prototype.constructor = IllegalPositionError;
 
+export class PositionBuilder {
+    constructor() {
+        this.pieces_ = Array.from([0, 1, 2, 3, 4, 5, 6, 7], x => [null, null, null, null, null, null, null, null]);
+        this.whiteTurn_ = true;
+        this.castlesRights_ = [false, false, false, false];
+        this.enPassantFile_ = null;
+        this.nullityHalfMovesCount_ = 0;
+        this.moveNumber_ = 1;
+    }
+
+    setWhiteTurn(isWhite) {
+        this.whiteTurn_ = isWhite;
+        return this;
+    }
+
+    setCastle(type, isSet) {
+        switch (type) {
+            case 'K':
+                this.castlesRights_[0] = isSet;
+                break;
+            case 'Q':
+                this.castlesRights_[1] = isSet;
+                break;
+            case 'k':
+                this.castlesRights_[2] = isSet;
+                break;
+            case 'q':
+                this.castlesRights_[3] = isSet;
+                break;
+        }
+        return this;
+    }
+
+    setEnPassantFile(file) {
+        if (file >= Board.FILE_A && file <= Board.FILE_H) {
+            this.enPassantFile_ = file;
+        }
+        return this;
+    }
+
+    setPiece(pieceFen, file, rank) {
+        this.pieces_[rank][file] = pieceFen ? Piece.fromFEN(pieceFen) : null;
+        return this;
+    }
+
+    setNullityHalfMovesCount(newCount) {
+        if (newCount >= 0) {
+            this.nullityHalfMovesCount_ = newCount;
+        }
+        return this;
+    }
+
+    setMoveNumber(newValue) {
+        if (newValue > 0) this.moveNumber_ = newValue;
+        return this;
+    }
+
+    build() {
+        const turnString = this.whiteTurn_ ? 'w' : 'b';
+
+        let castlesString = "";
+        if (this.castlesRights_[0]) castlesString += "K";
+        if (this.castlesRights_[1]) castlesString += "Q";
+        if (this.castlesRights_[2]) castlesString += "k";
+        if (this.castlesRights_[3]) castlesString += "q";
+        if (castlesString.length == 0) castlesString = '-';
+
+        const asciiCodeForLowerCaseA = 97;
+        const enPassantCell = this.enPassantFile_ ?
+            `${String.fromCharCode(asciiCodeForLowerCaseA + this.enPassantFile_)}${this.whiteTurn_ ? '6' : '3'}` : '-';
+
+        return Position.fromFEN(`${Board.toFEN(this.pieces_)} ${turnString} ${castlesString} ${enPassantCell} ${this.nullityHalfMovesCount_} ${this.moveNumber_}`);
+    }
+}
+
 export class Position {
     constructor(board, gameInfo) {
         this.board = board;
@@ -232,6 +311,10 @@ export class Position {
      */
     toFEN() {
         return `${this.board.toFEN()} ${this.gameInfo.toFEN()}`;
+    }
+
+    static newBuilder() {
+        return new PositionBuilder();
     }
 
     static fenIsValid_(fenString) {
