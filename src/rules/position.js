@@ -423,8 +423,8 @@ export class Position {
         let count = 0;
         let currentFile = fromCell.file;
         let currentRank = fromCell.rank;
-        const fileStep = parseInt(deltaFile / absDeltaFile); // must be -1,1 or 0
-        const rankStep = parseInt(deltaRank / absDeltaRank); // must be -1,1 or 0
+        const fileStep = absDeltaFile > 0 ? parseInt(deltaFile / absDeltaFile) : 0; // must be -1,1 or 0
+        const rankStep = absDeltaRank > 0 ? parseInt(deltaRank / absDeltaRank) : 0; // must be -1,1 or 0
 
         while (true) {
             currentFile += fileStep;
@@ -456,7 +456,13 @@ export class Position {
                 break;
             case 'B': //wanted fall through
             case 'b':
-                isRightPath = (absDeltaFile == absDeltaRank);
+                isRightPath = absDeltaFile == absDeltaRank;
+                if (!isRightPath) throw new IllegalMoveError();
+                if (this.countObstacleInPathExcludingEndCell_(fromCell, toCell) > 0) throw new IllegalMoveError();
+                break;
+            case 'R': //wanted fall through
+            case 'r':
+                isRightPath = absDeltaFile == 0 || absDeltaRank == 0;
                 if (!isRightPath) throw new IllegalMoveError();
                 if (this.countObstacleInPathExcludingEndCell_(fromCell, toCell) > 0) throw new IllegalMoveError();
                 break;
