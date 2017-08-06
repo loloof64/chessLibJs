@@ -1,6 +1,14 @@
 import { expect, assert } from 'chai';
 import _ from 'lodash';
-import { Board, GameInfo, CastleRights, Position, PositionBuilder } from '../../lib/rules/position';
+import {
+    Board,
+    GameInfo,
+    CastleRights,
+    Position,
+    PositionBuilder,
+    Cell,
+    CannotMoveFromEmptyCellError,
+} from '../../lib/rules/position';
 import { Piece } from '../../lib/rules/pieces';
 
 /**
@@ -220,4 +228,28 @@ describe('Position', function () {
     });
 
     // TODO checks that building position piece by piece fail if resulting fen is illegal.
+
+    it('cannot move from an empty cell', function () {
+        let position1 = Position.fromFEN('8/5b2/6k1/8/2N5/3K4/8/8 w - - 0 1');
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_C, Board.RANK_1),
+            new Cell(Board.FILE_C, Board.RANK_2)
+        ), CannotMoveFromEmptyCellError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_F, Board.RANK_3),
+            new Cell(Board.FILE_H, Board.RANK_5)
+        ), CannotMoveFromEmptyCellError);
+
+        let position2 = Position.fromFEN('8/5b2/6k1/8/2N5/3K4/8/8 b - - 0 1');
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_H, Board.RANK_5),
+            new Cell(Board.FILE_A, Board.RANK_5)
+        ), CannotMoveFromEmptyCellError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_B, Board.RANK_7),
+            new Cell(Board.FILE_B, Board.RANK_6)
+        ), CannotMoveFromEmptyCellError);
+    });
+
+    // TODO check that we can only move our pieces.
 });

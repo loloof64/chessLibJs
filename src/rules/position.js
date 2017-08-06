@@ -1,5 +1,12 @@
 import _ from 'lodash';
-import { Piece } from './pieces';
+import { Piece, Queen } from './pieces';
+
+export class Cell {
+    constructor(file, rank) {
+        this.file = file;
+        this.rank = rank;
+    }
+}
 
 export class Board {
 
@@ -201,6 +208,24 @@ export class GameInfo {
     }
 };
 
+export class IllegalMoveError {
+    constructor(message) {
+        this.message = message;
+    }
+};
+
+IllegalMoveError.prototype = Object.create(Error.prototype);
+IllegalMoveError.prototype.constructor = IllegalMoveError;
+
+export class CannotMoveFromEmptyCellError {
+    constructor(message) {
+        this.message = message;
+    }
+};
+
+CannotMoveFromEmptyCellError.prototype = Object.create(Error.prototype);
+CannotMoveFromEmptyCellError.prototype.constructor = CannotMoveFromEmptyCellError;
+
 export class IllegalPositionError {
     constructor(message) {
         this.message = message;
@@ -383,6 +408,24 @@ export class Position {
      */
     toFEN() {
         return `${this.board.toFEN()} ${this.gameInfo.toFEN()}`;
+    }
+
+    move(fromCell, toCell, promotionPiece, checkIfKingInChessAfterMove) {
+        const movingPiece = this.board.values[fromCell.rank][fromCell.file];
+        if (movingPiece === null) throw new CannotMoveFromEmptyCellError();
+
+        const deltaFile = toCell.file - fromCell.file;
+        const deltaRank = toCell.rank - fromCell.rank;
+        const absDeltaFile = Math.abs(deltaFile);
+        const absDeltaRank = Math.abs(deltaRank);
+
+        switch (movingPiece.toFEN()) {
+            case 'N': //wanted fall through
+            case 'n':
+                const isRightPath = (absDeltaFile == 2 && absDeltaRank == 1) || (absDeltaFile == 1 && absDeltaRank == 2);
+                if (!isRightPath) throw new IllegalMoveError();
+                break;
+        }
     }
 
     static newBuilder() {
