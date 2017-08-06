@@ -210,6 +210,78 @@ export class IllegalPositionError {
 IllegalPositionError.prototype = Object.create(Error.prototype);
 IllegalPositionError.prototype.constructor = IllegalPositionError;
 
+export class WrongKingsCountError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+WrongKingsCountError.prototype = Object.create(IllegalPositionError.prototype);
+WrongKingsCountError.prototype.constructor = WrongKingsCountError;
+
+export class PawnOnFirstOrEightRankError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+PawnOnFirstOrEightRankError.prototype = Object.create(IllegalPositionError.prototype);
+PawnOnFirstOrEightRankError.prototype.constructor = PawnOnFirstOrEightRankError;
+
+export class BadCastleFlagsFormatError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+BadCastleFlagsFormatError.prototype = Object.create(IllegalPositionError.prototype);
+BadCastleFlagsFormatError.prototype.constructor = BadCastleFlagsFormatError;
+
+export class ForbiddenCastleFlagsError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+ForbiddenCastleFlagsError.prototype = Object.create(IllegalPositionError.prototype);
+ForbiddenCastleFlagsError.prototype.constructor = ForbiddenCastleFlagsError;
+
+export class PlayerTurnFormatError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+PlayerTurnFormatError.prototype = Object.create(IllegalPositionError.prototype);
+PlayerTurnFormatError.prototype.constructor = PlayerTurnFormatError;
+
+export class EnPassantCellFormatError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+EnPassantCellFormatError.prototype = Object.create(IllegalPositionError.prototype);
+EnPassantCellFormatError.prototype.constructor = EnPassantCellFormatError;
+
+export class ForbiddenEnPassantCellError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+ForbiddenEnPassantCellError.prototype = Object.create(IllegalPositionError.prototype);
+ForbiddenEnPassantCellError.prototype.constructor = ForbiddenEnPassantCellError;
+
+export class WrongNullityHalfMovesCountError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+WrongNullityHalfMovesCountError.prototype = Object.create(IllegalPositionError.prototype);
+WrongNullityHalfMovesCountError.prototype.constructor = WrongNullityHalfMovesCountError;
+
+export class WrongMoveNumberError {
+    constructor(message) {
+        this.message = message;
+    }
+}
+WrongMoveNumberError.prototype = Object.create(IllegalPositionError.prototype);
+WrongMoveNumberError.prototype.constructor = WrongMoveNumberError;
+
 export class PositionBuilder {
     constructor() {
         this.pieces_ = Array.from([0, 1, 2, 3, 4, 5, 6, 7], x => [null, null, null, null, null, null, null, null]);
@@ -301,7 +373,7 @@ export class Position {
      * @param {String} fen
      */
     static fromFEN(fen) {
-        if (!Position.fenIsValid_(fen)) throw new IllegalPositionError(fen);
+        Position.checkIfFenIsValid_(fen);
         return new Position(Board.fromFEN(fen), GameInfo.fromFEN(fen));
     }
 
@@ -317,12 +389,14 @@ export class Position {
         return new PositionBuilder();
     }
 
-    static fenIsValid_(fenString) {
+    static checkIfFenIsValid_(fenString) {
         const parts = fenString.split(' ');
         const piecesArray = Position.convertFenStringToPiecesArray_(fenString);
 
         const whiteKingCount = Position.countThisPieceInstancesInArray_(Piece.fromFEN('K'), _.flatten(piecesArray));
         const blackKingCount = Position.countThisPieceInstancesInArray_(Piece.fromFEN('k'), _.flatten(piecesArray));
+
+        if (whiteKingCount !== 1 || blackKingCount !== 1) throw new WrongKingsCountError();
 
         const pawnsOnFirstRankCount =
             Position.countThisPieceInstancesInArray_(Piece.fromFEN('P'), piecesArray[Board.RANK_1]) +
@@ -332,20 +406,28 @@ export class Position {
             Position.countThisPieceInstancesInArray_(Piece.fromFEN('P'), piecesArray[Board.RANK_8]) +
             Position.countThisPieceInstancesInArray_(Piece.fromFEN('p'), piecesArray[Board.RANK_8]);
 
+        if (pawnsOnFirstRankCount > 0 || pawnsOnEightRankCount > 0) throw new PawnOnFirstOrEightRankError();
+
         const goodPlayerTurn = parts[1] === 'w' || parts[1] === 'b';
+        if (!goodPlayerTurn) throw new PlayerTurnFormatError();
+
         const goodAvailableCastlesCode = parts[2] === '-' ||
             (parts[2].length >= 1 && parts[2].length <= 4 &&
                 _.every(parts[2], (charElt) => (charElt === 'K' || charElt === 'Q' || charElt === 'k' || charElt === 'q')));
 
-        let setCastleCodesAreAllAllowed = true;
-        if (_.includes(parts[2], 'K') && (piecesArray[Board.RANK_1][Board.FILE_E] == null || piecesArray[Board.RANK_1][Board.FILE_E].toFEN() !== 'K')) setCastleCodesAreAllAllowed = false;
-        if (_.includes(parts[2], 'K') && (piecesArray[Board.RANK_1][Board.FILE_H] == null || piecesArray[Board.RANK_1][Board.FILE_H].toFEN() !== 'R')) setCastleCodesAreAllAllowed = false;
-        if (_.includes(parts[2], 'Q') && (piecesArray[Board.RANK_1][Board.FILE_E] == null || piecesArray[Board.RANK_1][Board.FILE_E].toFEN() !== 'K')) setCastleCodesAreAllAllowed = false;
-        if (_.includes(parts[2], 'Q') && (piecesArray[Board.RANK_1][Board.FILE_A] == null || piecesArray[Board.RANK_1][Board.FILE_A].toFEN() !== 'R')) setCastleCodesAreAllAllowed = false;
-        if (_.includes(parts[2], 'k') && (piecesArray[Board.RANK_8][Board.FILE_E] == null || piecesArray[Board.RANK_8][Board.FILE_E].toFEN() !== 'k')) setCastleCodesAreAllAllowed = false;
-        if (_.includes(parts[2], 'k') && (piecesArray[Board.RANK_8][Board.FILE_H] == null || piecesArray[Board.RANK_8][Board.FILE_H].toFEN() !== 'r')) setCastleCodesAreAllAllowed = false;
-        if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_E] == null || piecesArray[Board.RANK_8][Board.FILE_E].toFEN() !== 'k')) setCastleCodesAreAllAllowed = false;
-        if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_A] == null || piecesArray[Board.RANK_8][Board.FILE_A].toFEN() !== 'r')) setCastleCodesAreAllAllowed = false;
+        if (!goodAvailableCastlesCode) throw new BadCastleFlagsFormatError();
+
+        let castleCodesFlagsAreAllAllowed = true;
+        if (_.includes(parts[2], 'K') && (piecesArray[Board.RANK_1][Board.FILE_E] == null || piecesArray[Board.RANK_1][Board.FILE_E].toFEN() !== 'K')) castleCodesFlagsAreAllAllowed = false;
+        if (_.includes(parts[2], 'K') && (piecesArray[Board.RANK_1][Board.FILE_H] == null || piecesArray[Board.RANK_1][Board.FILE_H].toFEN() !== 'R')) castleCodesFlagsAreAllAllowed = false;
+        if (_.includes(parts[2], 'Q') && (piecesArray[Board.RANK_1][Board.FILE_E] == null || piecesArray[Board.RANK_1][Board.FILE_E].toFEN() !== 'K')) castleCodesFlagsAreAllAllowed = false;
+        if (_.includes(parts[2], 'Q') && (piecesArray[Board.RANK_1][Board.FILE_A] == null || piecesArray[Board.RANK_1][Board.FILE_A].toFEN() !== 'R')) castleCodesFlagsAreAllAllowed = false;
+        if (_.includes(parts[2], 'k') && (piecesArray[Board.RANK_8][Board.FILE_E] == null || piecesArray[Board.RANK_8][Board.FILE_E].toFEN() !== 'k')) castleCodesFlagsAreAllAllowed = false;
+        if (_.includes(parts[2], 'k') && (piecesArray[Board.RANK_8][Board.FILE_H] == null || piecesArray[Board.RANK_8][Board.FILE_H].toFEN() !== 'r')) castleCodesFlagsAreAllAllowed = false;
+        if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_E] == null || piecesArray[Board.RANK_8][Board.FILE_E].toFEN() !== 'k')) castleCodesFlagsAreAllAllowed = false;
+        if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_A] == null || piecesArray[Board.RANK_8][Board.FILE_A].toFEN() !== 'r')) castleCodesFlagsAreAllAllowed = false;
+
+        if (!castleCodesFlagsAreAllAllowed) throw new ForbiddenCastleFlagsError();
 
         const asciiCodeForLowerCaseA = 97;
         const noEnPassantSquareDefined = parts[3] === '-';
@@ -355,7 +437,9 @@ export class Position {
         const pieceAboveBelowEnPassantCell = (enPassantFile && !noEnPassantSquareDefined) ? (piecesArray[enPassantRank][enPassantFile]) : null;
         const expectedPawnFEN = parts[1] === 'w' ? 'p' : 'P';
         const pieceAboveBelowEnPassantCellIsExpectedPiece = pieceAboveBelowEnPassantCell && (pieceAboveBelowEnPassantCell.toFEN() === expectedPawnFEN);
-        const goodEnPassantSquare = noEnPassantSquareDefined || (enPassantSquareWellFormatted && pieceAboveBelowEnPassantCellIsExpectedPiece);
+
+        if (!noEnPassantSquareDefined && !enPassantSquareWellFormatted) throw new EnPassantCellFormatError();
+        if (!noEnPassantSquareDefined && !pieceAboveBelowEnPassantCellIsExpectedPiece) throw new ForbiddenEnPassantCellError();
 
         let goodNullityHalfMovesCount;
         try {
@@ -363,6 +447,7 @@ export class Position {
         } catch (ex) {
             return false;
         }
+        if (!goodNullityHalfMovesCount) throw new WrongNullityHalfMovesCountError();
 
         let goodMoveNumber;
         try {
@@ -370,17 +455,7 @@ export class Position {
         } catch (ex) {
             return false;
         }
-
-        return whiteKingCount === 1 &&
-            blackKingCount === 1 &&
-            pawnsOnFirstRankCount === 0 &&
-            pawnsOnEightRankCount === 0 &&
-            goodPlayerTurn &&
-            goodAvailableCastlesCode &&
-            setCastleCodesAreAllAllowed &&
-            goodEnPassantSquare &&
-            goodNullityHalfMovesCount &&
-            goodMoveNumber;
+        if (!goodMoveNumber) throw new WrongMoveNumberError();
     }
 
     static convertFenStringToPiecesArray_(fenString) {
