@@ -337,6 +337,16 @@ export class Position {
             (parts[2].length >= 1 && parts[2].length <= 4 &&
                 _.every(parts[2], (charElt) => (charElt === 'K' || charElt === 'Q' || charElt === 'k' || charElt === 'q')));
 
+        let setCastleCodesAreAllAllowed = true;
+        if (_.includes(parts[2], 'K') && (piecesArray[Board.RANK_1][Board.FILE_E] == null || piecesArray[Board.RANK_1][Board.FILE_E].toFEN() !== 'K')) setCastleCodesAreAllAllowed = false;
+        if (_.includes(parts[2], 'K') && (piecesArray[Board.RANK_1][Board.FILE_H] == null || piecesArray[Board.RANK_1][Board.FILE_H].toFEN() !== 'R')) setCastleCodesAreAllAllowed = false;
+        if (_.includes(parts[2], 'Q') && (piecesArray[Board.RANK_1][Board.FILE_E] == null || piecesArray[Board.RANK_1][Board.FILE_E].toFEN() !== 'K')) setCastleCodesAreAllAllowed = false;
+        if (_.includes(parts[2], 'Q') && (piecesArray[Board.RANK_1][Board.FILE_A] == null || piecesArray[Board.RANK_1][Board.FILE_A].toFEN() !== 'R')) setCastleCodesAreAllAllowed = false;
+        if (_.includes(parts[2], 'k') && (piecesArray[Board.RANK_8][Board.FILE_E] == null || piecesArray[Board.RANK_8][Board.FILE_E].toFEN() !== 'k')) setCastleCodesAreAllAllowed = false;
+        if (_.includes(parts[2], 'k') && (piecesArray[Board.RANK_8][Board.FILE_H] == null || piecesArray[Board.RANK_8][Board.FILE_H].toFEN() !== 'r')) setCastleCodesAreAllAllowed = false;
+        if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_E] == null || piecesArray[Board.RANK_8][Board.FILE_E].toFEN() !== 'k')) setCastleCodesAreAllAllowed = false;
+        if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_A] == null || piecesArray[Board.RANK_8][Board.FILE_A].toFEN() !== 'r')) setCastleCodesAreAllAllowed = false;
+
         const goodEnPassantSquare = parts[3] === '-' ||
             (parts[3][0] >= 'a' && parts[3][0] <= 'h' && parts[3][1] === (parts[1] === 'w' ? '6' : '3'));
 
@@ -360,6 +370,7 @@ export class Position {
             pawnsOnEightRankCount === 0 &&
             goodPlayerTurn &&
             goodAvailableCastlesCode &&
+            setCastleCodesAreAllAllowed &&
             goodEnPassantSquare &&
             goodNullityHalfMovesCount &&
             goodMoveNumber;

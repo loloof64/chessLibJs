@@ -93,4 +93,24 @@ describe('Building Position from FEN', function () {
         assert.throws(() => Position.fromFEN(fen2), IllegalPositionError);
         assert.throws(() => Position.fromFEN(fen3), IllegalPositionError);
     });
+
+    it('Should not accept fen string with castling rights set when matching king/rook has moved', function () {
+        const fen1 = 'r3k2r/8/8/8/8/8/8/R3K3 w Kq - 0 1';
+        const fen2 = 'r3k2r/8/8/8/8/8/8/4K2R w Q - 0 1';
+        const fen3 = 'r3k3/8/8/8/8/8/8/R3K2R w k - 0 1';
+        const fen4 = '4k2r/8/8/8/8/8/8/R3K2R w q - 0 1';
+        const fen5 = 'r3k2r/8/8/8/8/5K2/8/R6R w K - 0 1';
+        const fen6 = 'r3k2r/8/8/8/8/5K2/8/R6R w Q - 0 1';
+        const fen7 = 'r6r/2k5/8/8/8/8/8/R3K2R w k - 0 1';
+        const fen8 = 'r6r/2k5/8/8/8/8/8/R3K2R w q - 0 1';
+
+        assert.throws(() => Position.fromFEN(fen1), IllegalPositionError);
+        assert.throws(() => Position.fromFEN(fen2), IllegalPositionError);
+        assert.throws(() => Position.fromFEN(fen3), IllegalPositionError);
+        assert.throws(() => Position.fromFEN(fen4), IllegalPositionError);
+        assert.throws(() => Position.fromFEN(fen5), IllegalPositionError);
+        assert.throws(() => Position.fromFEN(fen6), IllegalPositionError);
+        assert.throws(() => Position.fromFEN(fen7), IllegalPositionError);
+        assert.throws(() => Position.fromFEN(fen8), IllegalPositionError);
+    })
 });
