@@ -104,6 +104,147 @@ describe('Bishop', function () {
         assert.equal('B', new Bishop(true).toFEN());
         assert.equal('b', new Bishop(false).toFEN());
     });
+
+    it('can move in diagonal as far as the path is free', function () {
+        const position1 = Position.fromFEN('4k3/8/8/8/3B4/8/8/4K3 w - - 0 1');
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_B, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_E, Board.RANK_3)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_7)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_8)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_4)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_D, Board.RANK_6)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_F, Board.RANK_5)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_3)
+        ), IllegalMoveError);
+
+        const position2 = Position.fromFEN('4k3/8/8/8/3b4/8/8/4K3 b - - 0 1');
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_B, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_E, Board.RANK_3)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_7)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_8)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_4)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_D, Board.RANK_6)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_F, Board.RANK_5)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_3)
+        ), IllegalMoveError);
+    });
+
+    // test for forbidden friend piece capture is in simplePositionTest.js file.
+    it('can capture the first obstacle on its path but do not jump over', function () {
+        const position1 = Position.fromFEN('4k2n/6q1/5r2/2r5/3B4/8/1p3n2/b3K3 w - - 0 1');
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_B, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_C, Board.RANK_5)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_F, Board.RANK_6)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_F, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_8)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_1)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_7)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_1)
+        ), IllegalMoveError);
+
+        const position2 = Position.fromFEN('4k2N/6Q1/5R2/2R5/3b4/8/1P3N2/B3K3 b - - 0 1');
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_B, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_C, Board.RANK_5)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_F, Board.RANK_6)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_F, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_8)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_1)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_7)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_1)
+        ), IllegalMoveError);
+    })
 });
 
 describe('Rook', function () {

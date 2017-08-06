@@ -410,6 +410,33 @@ export class Position {
         return `${this.board.toFEN()} ${this.gameInfo.toFEN()}`;
     }
 
+    countObstacleInPathExcludingEndCell_(fromCell, toCell) {
+        const deltaFile = toCell.file - fromCell.file;
+        const deltaRank = toCell.rank - fromCell.rank;
+        const absDeltaFile = Math.abs(deltaFile);
+        const absDeltaRank = Math.abs(deltaRank);
+
+        const staysAtStartCell = absDeltaFile == 0 && absDeltaRank == 0;
+        const notARegularLine = (absDeltaFile > 0 && absDeltaRank > 0) && (absDeltaFile != absDeltaRank);
+        if (staysAtStartCell || notARegularLine) return 0;
+
+        let count = 0;
+        let currentFile = fromCell.file;
+        let currentRank = fromCell.rank;
+        const fileStep = parseInt(deltaFile / absDeltaFile); // must be -1,1 or 0
+        const rankStep = parseInt(deltaRank / absDeltaRank); // must be -1,1 or 0
+
+        while (true) {
+            currentFile += fileStep;
+            currentRank += rankStep;
+            if (currentFile === toCell.file && currentRank === toCell.rank) break;
+            const pieceAtCurrentCellNotEmpty = this.board.values[currentRank][currentFile] !== null;
+            if (pieceAtCurrentCellNotEmpty) count++;
+        }
+
+        return count;
+    }
+
     move(fromCell, toCell, promotionPiece, checkIfKingInChessAfterMove) {
         const movingPiece = this.board.values[fromCell.rank][fromCell.file];
         if (movingPiece === null) throw new CannotMoveFromEmptyCellError();
@@ -419,11 +446,19 @@ export class Position {
         const absDeltaFile = Math.abs(deltaFile);
         const absDeltaRank = Math.abs(deltaRank);
 
+        let isRightPath;
+
         switch (movingPiece.toFEN()) {
             case 'N': //wanted fall through
             case 'n':
-                const isRightPath = (absDeltaFile == 2 && absDeltaRank == 1) || (absDeltaFile == 1 && absDeltaRank == 2);
+                isRightPath = (absDeltaFile == 2 && absDeltaRank == 1) || (absDeltaFile == 1 && absDeltaRank == 2);
                 if (!isRightPath) throw new IllegalMoveError();
+                break;
+            case 'B': //wanted fall through
+            case 'b':
+                isRightPath = (absDeltaFile == absDeltaRank);
+                if (!isRightPath) throw new IllegalMoveError();
+                if (this.countObstacleInPathExcludingEndCell_(fromCell, toCell) > 0) throw new IllegalMoveError();
                 break;
         }
     }
