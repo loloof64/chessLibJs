@@ -392,6 +392,115 @@ describe('Queen', function () {
         assert.equal('Q', new Queen(true).toFEN());
         assert.equal('q', new Queen(false).toFEN());
     });
+
+    it('can move in straight lines as far as the path is free', function () {
+        const position1 = Position.fromFEN('4k3/8/8/8/3Q4/8/8/4K3 w - - 0 1');
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_D, Board.RANK_8)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_7)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_C, Board.RANK_4)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_4)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_C, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_5)
+        ), IllegalMoveError);
+
+        const position2 = Position.fromFEN('4k3/8/8/8/3q4/8/8/4K3 b - - 0 1');
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_D, Board.RANK_8)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_7)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_C, Board.RANK_4)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_4)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_C, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_H, Board.RANK_5)
+        ), IllegalMoveError);
+    });
+
+    // test for forbidden friend piece capture is in simplePositionTest.js file.
+    it('can capture the first obstacle on its path but do not jump over', function () {
+        const position1 = Position.fromFEN('4k3/6p1/3B1r2/4N3/3Qp1n1/8/1b6/4K3 w - - 0 1');
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_E, Board.RANK_3)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_B, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_1)
+        ));
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_D, Board.RANK_8)
+        ));
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_4)
+        ));
+        assert.throws(() => position1.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_7)
+        ));
+
+        const position2 = Position.fromFEN('4k3/6P1/3b1R2/4n3/3qP1N1/8/1B6/4K3 b - - 0 1');
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_E, Board.RANK_3)
+        ), IllegalMoveError);
+        assert.doesNotThrow(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_B, Board.RANK_2)
+        ), IllegalMoveError);
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_A, Board.RANK_1)
+        ));
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_D, Board.RANK_8)
+        ));
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_4)
+        ));
+        assert.throws(() => position2.move(
+            new Cell(Board.FILE_D, Board.RANK_4),
+            new Cell(Board.FILE_G, Board.RANK_7)
+        ));
+    });
 });
 
 describe('King', function () {

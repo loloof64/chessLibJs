@@ -466,6 +466,12 @@ export class Position {
                 if (!isRightPath) throw new IllegalMoveError();
                 if (this.countObstacleInPathExcludingEndCell_(fromCell, toCell) > 0) throw new IllegalMoveError();
                 break;
+            case 'Q': //wanted fall through
+            case 'q':
+                isRightPath = (absDeltaFile == absDeltaRank) || (absDeltaFile == 0 || absDeltaRank == 0);
+                if (!isRightPath) throw new IllegalMoveError();
+                if (this.countObstacleInPathExcludingEndCell_(fromCell, toCell) > 0) throw new IllegalMoveError();
+                break;
         }
     }
 
