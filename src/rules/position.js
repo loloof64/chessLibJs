@@ -347,8 +347,15 @@ export class Position {
         if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_E] == null || piecesArray[Board.RANK_8][Board.FILE_E].toFEN() !== 'k')) setCastleCodesAreAllAllowed = false;
         if (_.includes(parts[2], 'q') && (piecesArray[Board.RANK_8][Board.FILE_A] == null || piecesArray[Board.RANK_8][Board.FILE_A].toFEN() !== 'r')) setCastleCodesAreAllAllowed = false;
 
-        const goodEnPassantSquare = parts[3] === '-' ||
-            (parts[3][0] >= 'a' && parts[3][0] <= 'h' && parts[3][1] === (parts[1] === 'w' ? '6' : '3'));
+        const asciiCodeForLowerCaseA = 97;
+        const noEnPassantSquareDefined = parts[3] === '-';
+        const enPassantSquareWellFormatted = parts[1] === 'w' ? parts[3].match(/[a-h]6/) : parts[3].match(/[a-h]3/);
+        const enPassantFile = enPassantSquareWellFormatted ? Board.FILE_A + parts[3].charCodeAt(0) - asciiCodeForLowerCaseA : null;
+        const enPassantRank = parts[1] === 'w' ? Board.RANK_5 : Board.RANK_4;
+        const pieceAboveBelowEnPassantCell = (enPassantFile && !noEnPassantSquareDefined) ? (piecesArray[enPassantRank][enPassantFile]) : null;
+        const expectedPawnFEN = parts[1] === 'w' ? 'p' : 'P';
+        const pieceAboveBelowEnPassantCellIsExpectedPiece = pieceAboveBelowEnPassantCell && (pieceAboveBelowEnPassantCell.toFEN() === expectedPawnFEN);
+        const goodEnPassantSquare = noEnPassantSquareDefined || (enPassantSquareWellFormatted && pieceAboveBelowEnPassantCellIsExpectedPiece);
 
         let goodNullityHalfMovesCount;
         try {
